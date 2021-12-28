@@ -47,3 +47,16 @@ run_assoc_mixmodel<-function(pheno, outcome, covars_prs, covmat=NULL,group.var=N
   
 }
 
+
+
+#' Title rank normalization
+#'
+#' @param x : vector and as numeric  outcome
+#'
+#' @return normalize value
+#' @export
+#'
+#' @examples
+rank_normalization<-function(x){
+  qnorm((rank(x,na.last="keep")-0.5)/length(x))
+}
