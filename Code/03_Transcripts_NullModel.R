@@ -48,7 +48,6 @@ nullmodel_stage2 <- nullModelInvNorm(nullmodel_stage1, cov.mat=cov.mat,
                                     rescale="residSD")
 
 
-
 output_file<-"./FAM106A_nullmodel.RData"
 save(nullmodel_stage2, file = output_file)
 
