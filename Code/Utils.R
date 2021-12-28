@@ -92,26 +92,25 @@ run_metab_assoc<-function(phenotype, sample_weight, psu_id, strata, covars, expo
   for(metab in metab_include) {
    
     model<- svyglm(as.formula(paste0(metab,"~",exposure,"+",paste(cov,collapse= "+"))),design=survey_design)
-    
-   
+  
     summary<-summary(model)$coef
-    
+
     
     sample.size<- length(model$residuals)
-    val<- summary[rownames(summary)==exposure,]
-    matab_names<- colnames(metab_imp_cont)[i]
-    val<- c(matab_names,sample.size,val,exposure )
+    metab_res<- summary[rownames(summary)==exposure,]
+    matab_names<- as.character(metab)
+    val<- c(matab_names,sample.size,metab_res)
     
-    val_df<- data.frame(t(val))
+    metab_res<- data.frame(t(metab_res))
     
-    colnames(val_df) <- c("Metabolite","SampleSize" ,"Beta", "SE", "Stat", "P.value")
+    colnames(metab_res) <- c("Metabolite","SampleSize" ,"Beta", "SE", "Stat", "P.value")
     
 
     # replace clase into numeric--> first into character first then numeric
-    val_df[, 2:ncol(val_df)] <- sapply(val_df[, 2:ncol(val_df)], as.character)
-    val_df[, 2:ncol(val_df)] <- sapply(val_df[, 2:ncol(val_df)], as.numeric)
+    metab_res[, 2:ncol(metab_res)] <- sapply(metab_res[, 2:ncol(metab_res)], as.character)
+    metab_res[, 2:ncol(metab_res)] <- sapply(metab_res[, 2:ncol(metab_res)], as.numeric)
     
-    out[[metab]]<- val_df
+    out[[metab]]<- metab_res
     
   }
   
