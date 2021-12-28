@@ -2,6 +2,7 @@ library(Olivia)
 library(dplyr)
 library(data.table)
 library(EnsDb.Hsapiens.v86)
+library(GWASTools)
 
 
 
