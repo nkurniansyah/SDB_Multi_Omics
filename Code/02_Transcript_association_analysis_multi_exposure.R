@@ -1,3 +1,5 @@
+args<-commandArgs(trailingOnly = T)
+
 library(Olivia)
 library(dplyr)
 library(data.table)
@@ -5,14 +7,14 @@ library(EnsDb.Hsapiens.v86)
 library(GWASTools)
 
 
-phenotype_file<-"./SDB_phenotype.csv"
+phenotype_file<-args[1]
 
 
 pheno<- fread(phenotype_file, data.table = F)
 head(pheno)
 
 
-rnaseq_count_matrix<-"./mesa_rnaseq_count_matrix.RData"
+rnaseq_count_matrix<-args[2]
 
 
 rnaseq_count<-getobj(rnaseq_count_matrix)
@@ -39,14 +41,14 @@ clean_count_matrix <- apply_filters(count_matrix = median_norm,
                                     prop_zero_max = 0.5)
 
 
-outcome<-c("AvgO2","MinO2","AHI")
+outcome<-args[3]
 
-covariates_string<-config["covariates_string"]
+covariates_string<-as.character(args[4])
 
-head(phenotypes)
+covars<- gsub(",","+",as.character(covariates_string))
 
 
-covars<-"as.factor(sex)+as.factor(study_site)+as.factor(Shipment)+as.factor(BroadUW),age,as.factor(race),as.factor(Plate)"
+#covars<-"as.factor(sex)+as.factor(study_site)+as.factor(Shipment)+as.factor(BroadUW),age,as.factor(race),as.factor(Plate)"
 
 
 set.seed(171)
@@ -83,6 +85,6 @@ add_annotation<-function(deg_res){
 
 res<- add_annotation(quantile_emp_trascript)
 head(res)
-output_file<-paste0("/",Sys.Date(),"_transcript_assoc_analyisis_multi_sdb_exposure.csv")
+output_file<-args[5]
 write.csv(res, file =output_file, row.names = F )
 
