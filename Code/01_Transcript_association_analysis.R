@@ -1,3 +1,4 @@
+args<-commandArgs(trailingOnly = T)
 library(Olivia)
 library(dplyr)
 library(data.table)
@@ -6,14 +7,14 @@ library(GWASTools)
 
 
 
-phenotype_file<-"./SDB_phenotype.csv"
+phenotype_file<-args[1]
 
 
 pheno<- fread(phenotype_file, data.table = F)
 head(pheno)
 
 
-rnaseq_count_matrix<-"./mesa_rnaseq_count_matrix.RData"
+rnaseq_count_matrix<-args[2]
 
 
 rnaseq_count<-getobj(rnaseq_count_matrix)
@@ -44,18 +45,22 @@ clean_count_matrix <- apply_filters(count_matrix = median_norm,
 
 #outcomes<-c("AvgO2","MinO2","AHI")
 
-outcome<-"AvgO2"
+outcome<-as.character(args[3])
 
-covars<-"as.factor(sex)+as.factor(study_site)+as.factor(Shipment)+as.factor(BroadUW),age,as.factor(race),as.factor(Plate)"
+covariates_string<-as.character(args[4])
+
+covars<- gsub(",","+",as.character(covariates_string))
+#covariates_string<-"as.factor(sex),as.factor(study_site),as.factor(Shipment),as.factor(BroadUW),age,as.factor(race),as.factor(Plate)"
 
 head(phenotypes)
 dim(phenotypes)
 
-set.seed(444)
+set.seed(123)
 head(phenotypes)
 
 
 message(paste0("outcome: ",outcome," and covar to adjust: ", covars))
+
 quantile_emp_trascript<-lm_count_mat_emp_pval(count_matrix = clean_count_matrix, 
                                               pheno=phenotypes, 
                                               trait=outcome,
@@ -86,6 +91,6 @@ add_annotation<-function(deg_res){
 
 res<- add_annotation(quantile_emp_trascript)
 head(res)
-output_file<-paste0("/",Sys.Date(),"_transcript_assoc_analyisis_",outcome,".csv")
+output_file<-args[5]
 write.csv(res, file =output_file, row.names = F )
 
