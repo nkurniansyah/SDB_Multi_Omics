@@ -6,13 +6,14 @@ library(GWASTools)
 
 
 
-phenotype_file<-"./SDB_phenotype.csv"
+phenotype_file<-args[1]
+
 phenotype_df<-read.csv(phenotype_file)
 #phenotype_annot<-AnnotatedDataFrame(phenotype_df)
 
 
 ## Use cluster to run this GWAS
-chr<-1:22
+chr<-args[2]
 
 
 gdsfile<-paste0("/TOPMed_chr",chr,".gds")
@@ -25,7 +26,7 @@ filterByPass(gds)
 
 
 
-null_model_file<- "./FAM106A_nullmodel.RData"
+null_model_file<- args[3]
 nullModel <- getobj(null_model_file)
 
 
@@ -51,7 +52,7 @@ assoc <- assocTestSingle(iterator, nullModel,
                          test="score")
 
 
-output<-paste0(".GWAS/FAM106A/FAM106A_assoc_chr",chr,".RData")
+output<-args[4]
 save(assoc,file = output)
 
 seqClose(seqData)
