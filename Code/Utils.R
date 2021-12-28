@@ -49,7 +49,7 @@ run_assoc_mixmodel<-function(pheno, outcome, covars_prs, covmat=NULL,group.var=N
 
 
 
-#' Title rank normalization
+#' Title: rank normalization
 #'
 #' @param x : vector and as numeric  outcome
 #'
@@ -60,3 +60,68 @@ run_assoc_mixmodel<-function(pheno, outcome, covars_prs, covmat=NULL,group.var=N
 rank_normalization<-function(x){
   qnorm((rank(x,na.last="keep")-0.5)/length(x))
 }
+
+
+
+
+
+#' Title: Metaboomics association test
+#'
+#' @param phenotype :data frame of the phenotype include all the metabolomics
+#' @param sample_weight : weight of sample
+#' @param psu_id  : PSU ID
+#' @param strata : stratum 
+#' @param covars : covars to adjust
+#' @param exposure : exposure 
+#' @param metab_include : vector of the name of metabolomics
+#'
+#' @return data frame of metabolomics association test
+#' @export
+#'
+#' @examples
+run_metab_assoc<-function(phenotype, sample_weight, psu_id, strata, covars, exposure,metab_include){
+  
+  survey_design=svydesign(id=as.formula(paste0("~", psu_id,collapse = "")),
+                          strata=as.formula(paste0("~", strata, collapse = "")),
+                          weights=as.formula(paste0("~", sample_weight, collapse = "")), 
+                          data=phenotype)
+  
+  
+  out<-list()
+  
+  for(metab in metab_include) {
+   
+    model<- svyglm(as.formula(paste0(metab,"~",exposure,"+",paste(cov,collapse= "+"))),design=survey_design)
+    
+   
+    summary<-summary(model)$coef
+    
+    
+    sample.size<- length(model$residuals)
+    val<- summary[rownames(summary)==exposure,]
+    matab_names<- colnames(metab_imp_cont)[i]
+    val<- c(matab_names,sample.size,val,exposure )
+    
+    val_df<- data.frame(t(val))
+    
+    colnames(val_df) <- c("Metabolite","SampleSize" ,"Beta", "SE", "Stat", "P.value")
+    
+
+    # replace clase into numeric--> first into character first then numeric
+    val_df[, 2:ncol(val_df)] <- sapply(val_df[, 2:ncol(val_df)], as.character)
+    val_df[, 2:ncol(val_df)] <- sapply(val_df[, 2:ncol(val_df)], as.numeric)
+    
+    out[[metab]]<- val_df
+    
+  }
+  
+  
+  res<- do.call(rbind, out)
+  res<-data.frame(res)
+  
+  
+  
+  return(res)
+  
+}
+
