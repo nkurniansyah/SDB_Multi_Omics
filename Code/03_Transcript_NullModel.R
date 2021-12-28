@@ -1,10 +1,8 @@
+args<-commandArgs(trailingOnly = T)
 library(data.table)
 library(dplyr)
 library(GENESIS)
 library(SeqArray)
-
-
-
 
 
 
@@ -14,18 +12,22 @@ library(SeqArray)
 
 
 
-phenotype_file<-"./SDB_phenotype_with_transcripts_values.csv"
-
+phenotype_file<-args[1]
 
 pheno<- fread(phenotype_file, data.table = F)
 head(pheno)
 
-covars<-c("shipment","BroadUW","plate","age","sex","race","Study site","PC1","PC2","PC3","PC4","PC5","PC6","PC7","PC8","PC9","PC10")
 
-outcome<-"FAM106A"
+covariates_string<-as.character(args[2])
 
+covars<- unlist(str_split(as.character(covariates_string),","))
 
-cov.mat<- getobj("./pcrelate_kinshipMatrix_sparseDeg4.RData")
+#covars<-c("shipment","BroadUW","plate","age","sex","race","Study site","PC1","PC2","PC3","PC4","PC5","PC6","PC7","PC8","PC9","PC10")
+
+outcome<as.character(args[3])
+
+cov.mat<-args[4]
+cov.mat<- getobj(cov.mat)
 
 
 
@@ -48,7 +50,7 @@ nullmodel_stage2 <- nullModelInvNorm(nullmodel_stage1, cov.mat=cov.mat,
                                     rescale="residSD")
 
 
-output_file<-"./FAM106A_nullmodel.RData"
+output_file<-args[5]
 save(nullmodel_stage2, file = output_file)
 
 
