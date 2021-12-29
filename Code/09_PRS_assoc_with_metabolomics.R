@@ -64,7 +64,7 @@ combine_pheno<- left_join(complete_pheno,metabolomics_df, by= "ID")
 dim(combine_pheno)
 
 
-list_metab<-colnames(metabolomics_df)[2:ncol(metabolomics_df)]
+list_metab<-colnames(metabolomics_df)[3:ncol(metabolomics_df)]
 
 
 
@@ -77,14 +77,16 @@ metab_assoc<-run_metab_assoc(phenotype = combine_pheno,
                              metab_include =list_metab )
 
 
+metab_assoc<-data.frame(metab_assoc)
+row.names(metab_assoc)<-NULL
 # remove unknow metabolite
-identify_metab<-metab_assoc%>% dplyr::filter(!str_detect(metabolite,"^X"))
+identify_metab<-metab_assoc%>% dplyr::filter(!str_detect(Metabolite,"^X"))
 
 ## Add FDR
 
 assoc_clean_df<- identify_metab %>% mutate(FDR_BH=p.adjust(P.value,method="BH"))
 
 
-metab_output<-args[6]
+metab_output<-args[5]
 write.csv(assoc_clean_df, file=metab_output, row.names = F)
 
