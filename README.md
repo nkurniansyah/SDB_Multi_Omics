@@ -1,15 +1,3 @@
----
-title: "Multi-Omics Sleep Disorder Breathing"
-author: "Tamar Sofer & Nuzulul Kurniansyah"
-date: "2/18/2021"
-output: 
-  pdf_document:
-    toc: true
-  html_document:
-    toc: true
----
-
-
 ## Introduction
 
 This repository provides information and instruction how to perform the
