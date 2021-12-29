@@ -1,6 +1,5 @@
-
 ---
-title: "Olivia R package"
+title: "Multi-Omics Sleep Disorder Breathing"
 author: "Tamar Sofer & Nuzulul Kurniansyah"
 date: "2/18/2021"
 output: 
@@ -8,8 +7,8 @@ output:
     toc: true
   html_document:
     toc: true
-    
 ---
+
 
 ## Introduction
 
