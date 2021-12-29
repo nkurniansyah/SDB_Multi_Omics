@@ -1,8 +1,10 @@
 ---
 title: "Multi-Omics Sleep Disorder Breathing"
-author: "Nuzulul Kurniansyah & Tamar Sofer"
+author: "Nuzulul Kurniansyah & Tamar Sofer "
 date: "12/29/2021"
-output: md_document
+output: 
+  md_document:
+    toc: true
 ---
 
 

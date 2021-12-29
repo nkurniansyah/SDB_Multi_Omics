@@ -1,3 +1,6 @@
+-   [Introduction](#introduction)
+-   [Required packages](#required-packages)
+
 ## Introduction
 
 This repository provides information and instruction how to perform the
