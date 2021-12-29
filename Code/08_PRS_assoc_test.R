@@ -14,10 +14,7 @@ pheno<-fread(phenotype_file,data.table = F)
 
 head(pheno)
 
-
-
 prs_file<- args[2]
-
 
 prs_df<- fread(prs_file, data.table = F)
 
@@ -42,12 +39,9 @@ cov<- unlist(str_split(as.character(covars),","))
 cov_prs<-c(cov,"prs_auto")
 
 
-
-outcome<-args[5]
-
+outcome<-args[5] # SDB
 
 pheno_annot <- AnnotatedDataFrame(all_pheno)
-
 
 print(outcome)
 
