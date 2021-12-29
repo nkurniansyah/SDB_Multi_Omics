@@ -85,6 +85,6 @@ identify_metab<-metab_assoc%>% dplyr::filter(!str_detect(metabolite,"^X"))
 assoc_clean_df<- identify_metab %>% mutate(FDR_BH=p.adjust(P.value,method="BH"))
 
 
-metab_output<-args[]
+metab_output<-args[6]
 write.csv(assoc_clean_df, file=metab_output, row.names = F)
 
