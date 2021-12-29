@@ -141,10 +141,15 @@ run_metab_assoc<-function(phenotype, sample_weight, psu_id, strata, covars, expo
 #'
 #' @examples
 #' 
-random_effect_mix_model<-  function(phenotype, covariates_string, trait, fixed_batch_effect, random_batch_effect){
+random_effect_mix_model<-  function(phenotype, covariates_string, trait, fixed_batch_effect, random_batch_effect=NULL, outcome){
   
-  fixed_covariates<- c(covariates_string, trait, fix_batch_effect)
-  random_effect<- paste('(1|',random_batch_effect , ')', collapse = "+")
+  fixed_covariates<- c(covariates_string, trait, fixed_batch_effect)
+  fixed_covariates<-paste(outcome,"~",paste(fixed_covariates,collapse = "+" ))
+
+  if(!is.null(random_batch_effect)){
+    random_effect<- paste('(1|',random_batch_effect , ')', collapse = "+")
+    
+  }
   
   fit.warn <- tryCatch(
     {list(lmer(formula(paste(fixed_covariates, random_effect, sep = " + ")), data =phenotype ),"MixedOK")},
@@ -175,23 +180,25 @@ random_effect_mix_model<-  function(phenotype, covariates_string, trait, fixed_b
 #' 
 remove_fixed_effect <- function(regression_model,fixed_batch_effect ){
   
-  
+  #whicgrepl(batch, colnames(model_mat))
   model_mat<- model.matrix(regression_model)
   out<-list()
   for(batch in fixed_batch_effect){
-    
-    fixed_effect_value <- model_mat[,grep(batch, colnames(model_mat))]
-    
-    fixed_effects_estimate <- summary(regression_model)$coefficients[grep(batch,colnames(model_mat)),"Estimate"]
-    fixed_batch_effect_to_remove<-fixed_effect_value%*%fixed_effects_estimate
-    
-    out[[fixed_batch]]<-fixed_batch_effect_to_remove
+    message(paste0("remove ", batch))
+    fixed_effect_value <- as.matrix(model_mat[,grepl(batch, colnames(model_mat),fixed = TRUE)])
+    colnames(fixed_effect_value)<- colnames(model_mat)[grepl(batch, colnames(model_mat), fixed = T)]
+    fixed_effects_estimate <- summary(regression_model)$coefficients[grepl(batch,rownames(summary(regression_model)$coefficients), fixed = TRUE),"Estimate"]
+    names(fixed_effects_estimate)<- rownames(summary(regression_model)$coefficients)[grepl(batch,rownames(summary(regression_model)$coefficients), fixed = TRUE)]
+    fixed_effect_value<-fixed_effect_value[,names(fixed_effects_estimate)]
+    fixed_batch_effect_to_remove<-as.matrix(fixed_effect_value)%*%fixed_effects_estimate
+    out[[batch]]<-fixed_batch_effect_to_remove
     
   }
   
   fixed_effect_to_remove<--Reduce(`+`, out)
   
   return(fixed_effect_to_remove)
+  
 }
 
 
