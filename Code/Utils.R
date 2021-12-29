@@ -162,8 +162,8 @@ random_effect_mix_model<-  function(phenotype, covariates_string, trait, fixed_b
       fit <- lm(fixed_covariates, data = phenotype)
       return (list(fit,"err"))})
   
-  fit <- fit.warn[[1]]
-  return(fit)
+  #fit <- fit.warn
+  return(fit.warn)
   
 }
 
