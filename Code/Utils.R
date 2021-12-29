@@ -124,3 +124,103 @@ run_metab_assoc<-function(phenotype, sample_weight, psu_id, strata, covars, expo
   
 }
 
+
+
+
+#' Title : Run mix model for random effect or lmer
+#'
+#' @param phenotype: data frame of the phenotypes, include all proteomics or transcriptomics (outcome)
+#' @param covariates_string : covariates to adjust (without batch effect)
+#' @param trait : trait (SDB) exposure
+#' @param fixed_batch_effect : vector Fix batch effect 
+#' @param random_batch_effect " vector of random effecr
+#'
+#' @return regression model
+#' 
+#' @export
+#'
+#' @examples
+#' 
+random_effect_mix_model<-  function(phenotype, covariates_string, trait, fixed_batch_effect, random_batch_effect){
+  
+  fixed_covariates<- c(covariates_string, trait, fix_batch_effect)
+  random_effect<- paste('(1|',random_batch_effect , ')', collapse = "+")
+  
+  fit.warn <- tryCatch(
+    {list(lmer(formula(paste(fixed_covariates, random_effect, sep = " + ")), data =phenotype ),"MixedOK")},
+    warning = function(Warn){
+      print(paste("MY_WARNING:  ",Warn))
+      fit <- lm(fixed_covariates , data = phenotype)
+      return (list(fit,"Warn"))},
+    error = function(err) 
+    {print(paste("MY_ERROR:  ",err))
+      fit <- lm(fixed_covariates, data = phenotype)
+      return (list(fit,"err"))})
+  
+  fit <- fit.warn[[1]]
+  return(fit)
+  
+}
+
+
+#' Title Removing Fixed effect 
+#'
+#' @param regression_model : regression model (routput of random_effect_mix_model)
+#' @param fixed_batch_effect : vector of fixed batch effect
+#'
+#' @return value of fix batch effect to remove
+#' @export
+#'
+#' @examples
+#' 
+remove_fixed_effect <- function(regression_model,fixed_batch_effect ){
+  
+  
+  model_mat<- model.matrix(regression_model)
+  out<-list()
+  for(batch in fixed_batch_effect){
+    
+    fixed_effect_value <- model_mat[,grep(batch, colnames(model_mat))]
+    
+    fixed_effects_estimate <- summary(regression_model)$coefficients[grep(batch,colnames(model_mat)),"Estimate"]
+    fixed_batch_effect_to_remove<-fixed_effect_value%*%fixed_effects_estimate
+    
+    out[[fixed_batch]]<-fixed_batch_effect_to_remove
+    
+  }
+  
+  fixed_effect_to_remove<--Reduce(`+`, out)
+  
+  return(fixed_effect_to_remove)
+}
+
+
+
+
+#' Title Removing random effect
+#'
+#' @param regression_model : regression model (routput of random_effect_mix_model)
+#' @param random_batch_effect :vector of random batch effect
+#' @param phenotype : : data frame of the phenotypes, include all proteomics or transcriptomics (outcome)
+#'
+#' @return value of random batch effect to remove
+#' 
+#' @export
+#'
+#' @examples
+remove_random_effect <- function(regression_model,random_batch_effect, phenotype){
+  
+  out<-list()
+  for(random_effect in random_batch_effect){
+    random_eff_runef<- ranef(regression_model)[[random_effect]][match(phenotype[[random_effect]], rownames(ranef(regression_model)[[random_effect]])),1]
+    
+    out[[random_effect]]<- random_eff_runef
+  }
+  
+
+  random_batch_effect_to_remove<-Reduce(`+`, out)
+
+  return(random_batch_effect_to_remove)
+}
+
+
