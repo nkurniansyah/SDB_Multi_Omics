@@ -3,8 +3,12 @@
 title: "Olivia R package"
 author: "Tamar Sofer & Nuzulul Kurniansyah"
 date: "2/18/2021"
-output: md_document
-
+output: 
+  pdf_document:
+    toc: true
+  html_document:
+    toc: true
+    
 ---
 
 ## Introduction
