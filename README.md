@@ -10,16 +10,16 @@ analyses (see folder “Code”).
 ## RNASeq Analyis
 
 We performed association analysis of SDB phenotype (AvgO2, MinO2, AHI
-and multiple SDB traits) with RNA-seq in MESA (Multi-Ethnic Study of
-Atherosclerosis). We used
-[Olivia](https://github.com/nkurniansyah/Olivia "Olivia") R packge to
-performed the analyses.
+and multiple SDB traits)with RNA-seq in MESA (Multi-Ethnic Study of
+Atherosclerosis) using
+[Olivia](https://github.com/nkurniansyah/Olivia "Olivia") R packge.
 
 we used 01\_Transcript\_association\_analysis.R (single trait/exposure)
 and 02\_Transcript\_association\_analysis\_multi\_exposure.R (mutiple
-exposure).
+exposure) to run the RNASeq analyis.
 
-This scripts takes 5 arguments: 1. Phenotype files  
+This scripts takes 5 arguments:  
+1. Phenotype files  
 2. Rnaseq count matrix (\*.RData)  
 3. Trait /exposure  
 4. Covariates to adjust  
