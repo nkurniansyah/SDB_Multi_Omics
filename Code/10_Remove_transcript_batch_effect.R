@@ -92,18 +92,22 @@ for(transcript in transcripts){
   
   
   
-  fit<-random_effect_mix_model(phenotype = combine_pheno,
+  model<-random_effect_mix_model(phenotype = combine_pheno,
                                covariates_string = non_batch_effect_covars,
                                fixed_batch_effect =fixed_batch_effect,
                                trait = trait, 
                                outcome = transcript )
   
   
+  
+  fit<-model[[1]]
+  
   batch_effect<- remove_fixed_effect(regression_model = fit,
                                      fixed_batch_effect = fixed_batch_effect)
   
   
   clean_transcripts[,transcript]<-  as.matrix(combine_pheno[,transcript])- batch_effect
+  
   
   
   
