@@ -28,5 +28,7 @@ Other software and packages that we used, but may not be necessary for others to
 ```{r eval=FALSE, echo=TRUE}
 
 install.packages("dplyr")
+library(dplyr)
+library(bigsnpr)
 
 ```

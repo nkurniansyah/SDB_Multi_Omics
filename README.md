@@ -23,3 +23,5 @@ data.table, purrr, pROC.
 GWASTools.  
 
     install.packages("dplyr")
+    library(dplyr)
+    library(bigsnpr)
