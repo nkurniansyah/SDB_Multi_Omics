@@ -99,7 +99,7 @@ run_metab_assoc<-function(phenotype, sample_weight, psu_id, strata, covars, expo
     sample.size<- length(model$residuals)
     metab_res<- summary[rownames(summary)==exposure,]
     matab_names<- as.character(metab)
-    val<- c(matab_names,sample.size,metab_res)
+    metab_res<- c(matab_names,sample.size,metab_res)
     
     metab_res<- data.frame(t(metab_res))
     
@@ -107,8 +107,8 @@ run_metab_assoc<-function(phenotype, sample_weight, psu_id, strata, covars, expo
     
 
     # replace clase into numeric--> first into character first then numeric
-    metab_res[, 2:ncol(metab_res)] <- sapply(metab_res[, 2:ncol(metab_res)], as.character)
-    metab_res[, 2:ncol(metab_res)] <- sapply(metab_res[, 2:ncol(metab_res)], as.numeric)
+    metab_res[, 3:ncol(metab_res)] <- sapply(metab_res[, 3:ncol(metab_res)], as.character)
+    metab_res[, 3:ncol(metab_res)] <- sapply(metab_res[, 3:ncol(metab_res)], as.numeric)
     
     out[[metab]]<- metab_res
     
