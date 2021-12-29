@@ -9,8 +9,8 @@ analyses (see folder “Code”).
 
 ## RNASeq Analyis
 
-We performed association analysis of SDB phenotype using the Olivia
-([Olivia](https://github.com/nkurniansyah/Olivia "Olivia")) with RNA-seq
+We performed association analysis of SDB phenotype using the
+[Olivia](https://github.com/nkurniansyah/Olivia "Olivia") with RNA-seq
 data in MESA (Multi-Ethnic Study of Atherosclerosis).
 
     install.packages("dplyr")

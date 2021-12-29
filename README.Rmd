@@ -19,7 +19,7 @@ Second, this repository also provides the codes the we used for the analyses (se
 
 ## RNASeq Analyis
 
-We performed association analysis of SDB phenotype using the Olivia ([Olivia](https://github.com/nkurniansyah/Olivia "Olivia")) with RNA-seq data in MESA (Multi-Ethnic Study of Atherosclerosis).
+We performed association analysis of SDB phenotype using the [Olivia](https://github.com/nkurniansyah/Olivia "Olivia") with RNA-seq data in MESA (Multi-Ethnic Study of Atherosclerosis).
 
 
 
