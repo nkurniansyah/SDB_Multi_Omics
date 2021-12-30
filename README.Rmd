@@ -118,8 +118,26 @@ for transcript FAM20A .... AJUBA ; do \
 ```
 
 After completing the GWAS, we combine the GWAS for each transcript using QC using a clumping approach were implemented in
-[PLINK 2.0](https://www.cog-genomics.org/plink/2.0/ "PLINK 2.0"). We used clumping parameters R2=0.95, Distance 500kb, and P=1. We used HCHS/SOL reference panel to perform clumping because we want to prioritize the existing SNP in HCHS/SOL to generate PRS. See the example below to perform clumping.
+[PLINK](https://www.cog-genomics.org/plink/2.0/ "PLINK"). We used clumping parameters R2=0.95, Distance 500kb, and P=1. We used HCHS/SOL reference panel to perform clumping because we want to prioritize the existing SNP in HCHS/SOL to generate PRS. See the example below to perform clumping.
 
+
+```{bash eval=FALSE, echo=TRUE }
+
+for transcript in transcripts ; do \
+
+plink \
+    --bfile HCHS_SOL_geno \
+    --clump-p1 1 \
+    --clump-r2 0.95 \
+    --clump-kb 500 \
+    --clump ./GWAS/$transcript/$transcrip\_combine.txt \
+    --clump-snp-field SNP \
+    --clump-field P \
+    --out ./GWAS/$transcript/$transcrip\_clean_R_0.95_500_kb.txt \
+    
+;done
+
+```
 
 
 
