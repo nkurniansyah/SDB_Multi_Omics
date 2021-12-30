@@ -29,17 +29,21 @@ see example below to excute the code:
 
 
     # Single trait
+    for trait in AvgO2 MinO2 AHI; do \ 
 
+    bsub -J $trait -q medium -n 2 -o ./output_rna_seq/log/$trait.log \
 
     Rscript .Code/01_Transcript_association_analysis.R \
             ./Data/SDB_phenotype.csv \
             ./Data/MESA_RNASeq.RData \
-            AvgO2 \
+            $trait \
             'age,sex,study_site,race,shipment,plate,BroadUW'\
-            ./output_rna_seq/AvgO2_unadjBMI.csv
-            
+            ./output_rna_seq/$trait_unadjBMI.csv; \
+    done
 
     # Multi trait
+
+    bsub -J Multi_SDB -q medium -n 2 -o ./output_rna_seq/log/Multi_SDB.log \
 
     Rscript .Code/02_Transcript_association_analysis_multi_exposure.R \
             ./Data/SDB_phenotype.csv \
@@ -47,6 +51,7 @@ see example below to excute the code:
             'AvgO2,MinO2,AHI' \
             'age,sex,study_site,race,shipment,plate,BroadUW'\
             ./output_rna_seq/Multi_sdb_unadjBMI.csv
+            
 
 There are 104 transcripts for un-adjusted BMI and 28 transcripts with
 FDR p-value &lt; 0.1 accross multiple blood tissues and traits for un.
@@ -61,3 +66,50 @@ using
 
 We first generate NullModel then performe assiaction test.
 (03\_Transcript\_NullModel.R and 04\_Transcript\_GWAS.R)
+
+see example below how to excute the code:
+
+
+    #STEP 1. NullModel
+
+
+    for transcript in FAM20A .... AJUBA ; do \ 
+
+    bsub -J $trait -q medium -n 2 -o ./GWAS/$trait/log/$transcript.log \
+
+    Rscript .Code/03_Transcript_NullModel.R \
+            ./Data/SDB_phenotype_with_trancsripts_log_transform.csv \
+            'age,sex,study_site,race,shipment,plate,BroadUW,PC1..PC10'\
+            $trancript \
+            ./Data/TOPMed_kinship_matrix.RData \
+            ./GWAS/$Trait/Data/$transcript\_NUllModel.RData; \
+    done
+            
+
+
+    #STEP 2. GWAS
+
+    for transcript FAM20A .... AJUBA ; do \ 
+
+      for chr in {1..22}{
+      
+          bsub -J $transcript\_$chr -q medium -n 2 -o ./GWAS/$transcript/log/$transcript\_chr$chr.log \
+      
+                Rscript .Code/04_Transcript_GWAS.R \
+                ./Data/SDB_phenotype_with_trancsripts_log_transform.csv \
+                $chr \
+                ./GWAS/$transcript/Data/$transcript\_NullModel.RData; \
+                ./GWAS/$transcript/$transcript\_chr$chr.RData ; \
+
+            done \
+    ;done
+
+            
+
+After completed the GWAS, we combine the GWAS for each trancripts using
+QC using clumping approach where implemented in [PLINK
+2.0](https://www.cog-genomics.org/plink/2.0/ "PLINK 2.0"). We used
+clumping parameter R2=0.95, Distance 500kb and P=1. We used HCHS/SOL
+refrance panel to perfomed clumping, because we want to proritize the
+existing SNP in HCHS/SOL to generate PRS. See exaple below to perfomed
+clumping.
