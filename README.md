@@ -1,16 +1,16 @@
 ## Introduction
 
-This repository provides information and instruction how to perform the
-analysis in the manuscripts Multi-omics analysis of sleep-disorder
+This repository provides information and instruction on how to perform
+the analysis in the manuscripts Multi-omics analysis of sleep-disorder
 sleeping traits across multiple blood tissues.
 
-Second, this repository also provides the codes the we used for the
-analyses (see folder “Code”).
+Second, this repository also provides the codes we used for the analyses
+(see folder “Code”).
 
 ## RNASeq Analyis
 
 We performed Transcript wide association analysis of SDB phenotype
-(AvgO2, MinO2, AHI and multiple SDB traits) in multiple blood tissue in
+(AvgO2, MinO2, AHI, and multiple SDB traits) in multiple blood tissue in
 MESA (Multi-Ethnic Study of Atherosclerosis) using
 [Olivia](https://github.com/nkurniansyah/Olivia "Olivia") R package.
 
@@ -54,20 +54,20 @@ see example below to excute the code:
             
 
 There are 104 transcripts for un-adjusted BMI and 28 transcripts with
-FDR p-value &lt; 0.1 accross multiple blood tissues and traits for un.
-We used all these transcript for additional analyses.
+FDR p-value &lt; 0.1 across multiple blood tissues and traits for un. We
+used all these transcripts for additional analyses.
 
 ## Genome-wide association study (GWAS)
 
-Next step is perform Genome-wide Assocition Study for each transcript
-using MESA refrence panel. We followed the guideline to perform GWAS
-using
+The next step is to perform a Genome-wide Association Study for each
+transcript using the MESA reference panel. We followed the guideline to
+perform GWAS using
 [TopmedPipeline](https://github.com/UW-GAC/analysis_pipeline "TopmedPipeline").
 
 We first generate NullModel then performe assiaction test.
 (03\_Transcript\_NullModel.R and 04\_Transcript\_GWAS.R)
 
-see example below how to excute the code:
+see the example below how to execute the code:
 
 
     #STEP 1. NullModel
@@ -106,10 +106,10 @@ see example below how to excute the code:
 
             
 
-After completed the GWAS, we combine the GWAS for each trancripts using
-QC using clumping approach where implemented in [PLINK
+After completing the GWAS, we combine the GWAS for each transcript using
+QC using a clumping approach were implemented in [PLINK
 2.0](https://www.cog-genomics.org/plink/2.0/ "PLINK 2.0"). We used
-clumping parameter R2=0.95, Distance 500kb and P=1. We used HCHS/SOL
-refrance panel to perfomed clumping, because we want to proritize the
-existing SNP in HCHS/SOL to generate PRS. See exaple below to perfomed
-clumping.
+clumping parameters R2=0.95, Distance 500kb, and P=1. We used HCHS/SOL
+reference panel to perform clumping because we want to prioritize the
+existing SNP in HCHS/SOL to generate PRS. See the example below to
+perform clumping.
