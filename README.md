@@ -194,11 +194,35 @@ HCHS/SOL references panel. see example below to run PRS:
      bsub -J $transcript\_beta -q big -n 4 -o ./PRS/Data/PBMC/$transcript/log/$transcript\_PRS.log \
       
           Rscript .Code/07_Construct_PRS.R \
-                  ./PRS/$transcript\_MESA_pred_auto_beta.txt 
+                  ./PRS/$transcript\_MESA_pred_auto_beta.txt \
                   ./Genotype/HCHS_SOL_F5_imputed.rds \
                   4 \
                    ./PRS/$transcript\_HCHS_SOL_PRS_auto.txt \
         
     ;done
 
-## Association test transcript PRS with SDB phenothpe in HCHS SOL
+## Association test transcript PRS with SDB phenothpe in HCHS/SOL
+
+We performed association analysis using mixed models (two stage
+procedure) implemented in the
+[GENESIS](https://github.com/UW-GAC/GENESIS "GENESIS") R package. Below
+is an example how to run the association test.
+
+
+
+    for transcript in transcripts ; do \
+
+     bsub -J $transcript\_Assoc_avgSatO2 -q big -n 2 -o ./PRS_Asoc/PBMC/log/$transcript\_PRS_assoc.log \
+      
+          Rscript .Code/08_PRS_assoc_test.R \
+                  ./Data/HCHS_SOL_sleep_pheno.txt \
+                  ./PRS/$transcript\_HCHS_SOL_PRS_auto.txt \
+                  ./PRS/$transcript\_MESA_pred_auto_beta.txt \
+                  'Age,Sex,Center,log_weight_norm,Background,PC1,PC2,PC3,PC4,PC5' \
+                  AvgSatO2 \
+                  ./Data/HCHS_SOL_CovMatlist.RData \
+                  ./PRS_Asoc/PBMC/$transcript\_assoc_with_AvgSatO2.RData
+                 
+    ;done
+
+## Association test transcript PRS with Metabolomics HCHS/SOL
