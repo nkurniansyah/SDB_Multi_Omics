@@ -122,9 +122,17 @@ perform clumping.
         --clump-p1 1 \
         --clump-r2 0.95 \
         --clump-kb 500 \
-        --clump ./GWAS/$transcript/$transcrip\_combine.txt \
+        --clump ./GWAS/$transcript/$transcript\_combine.txt \
         --clump-snp-field SNP \
         --clump-field P \
-        --out ./GWAS/$transcript/$transcrip\_clean_R_0.95_500_kb.txt \
+        --out ./GWAS/$transcript/$transcript\_clean_R_0.95_500_kb.txt \
         
     ;done
+
+## Constructing PRS
+
+# Step 1: Correlation Matrix
+
+We recompute beta for calculating PRS. we used MESA as refrence panel,
+firstly we compute the correlation matrix and construct beta using auto
+model which implemented in bigsnpr.
