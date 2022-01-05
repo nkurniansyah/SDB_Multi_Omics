@@ -131,7 +131,7 @@ perform clumping.
 
 ## Constructing PRS
 
-# Step 1: Correlation Matrix
+### Step 1: Correlation Matrix
 
 We recompute beta for calculating PRS. we used MESA as refrence panel,
 firstly we compute the correlation matrix and construct beta using auto
