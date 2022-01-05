@@ -143,8 +143,74 @@ plink \
 
 ## Constructing PRS
 
+We use each of summary statistics from each of the Tranccript GWAS after QC to develop PRS weights for the corresponding transcripts. We used the LDPRed2-auto model implemented in [bigsnpr](https://privefl.github.io/bigsnpr/articles/LDpred2.html#computing-ldpred2-scores-genome-wide-1 "bigsnpr") R package. Below are the step to construct PRS:
+ 
 ### Step 1: Correlation Matrix
 
-We recompute beta for calculating PRS. we used MESA as refrence panel, firstly we compute the correlation matrix and construct beta using auto model which implemented in bigsnpr. 
+First, we computed correlation matrix between variants. We used MESA reference panel and same set of people to generate correlation matrix. We first merge all the summary statistics for each tissues(PBMC, Monocyte and T-cell) then create correlation matrix. See example below to excute the code:
 
+```{bash eval=FALSE, echo=TRUE}
+
+for tiss PBMC Mono Tcell  ; do \ 
+
+  for chr in {1..22}{
+  
+      bsub -J $transcript\_$chr -q big -n 4 -o ./PRS/Data/$tissue/log/$tissue\_corr_chr$chr.log \
+  
+            Rscript .Code/05_Correlation_matrix.R \
+            $chr \
+            ./Genotype/$tissue\_MESA.bed \
+            ./Data/sample_to_include_$tissue.txt \
+            ./Data/summary_stat_$tissue.txt \
+            ./PRS/Data/$tissue/
+            ./PRS/Data/$tissue/corr_chr$chr.rds; \
+        done \
+;done
+  
+
+```
+
+### Step 2: LDpred2-auto: automatic model
+
+After completed the correlation matrix, we compute weight based on set of people that we used to generate GWAS. See example below to excute the code:
+
+```{bash eval=FALSE, echo=TRUE}
+for transcript in transcripts ; do \
+
+ bsub -J $transcript\_beta -q big -n 4 -o ./PRS/Data/PBMC/$transcript/log/$transcript\_beta.log \
+  
+      Rscript .Code/06_Compute_beta_auto.R \
+              ./GWAS/$transcript/$transcript\_clean_R_0.95_500_kb.txt\
+              ./Genotype/$tissue\_MESA.rds \
+              ./Data/sample_to_include_PBMC.txt \
+              ./PRS/Data/$tissue \
+              ./PRS/$transcript \
+              4 \
+               ./PRS/$transcript\_MESA_pred_auto_beta.txt \
+    
+;done
+```
+
+
+
+### Step 3: Generate PRS 
+
+Finally, We used new weighted from MESA and  constructed PRS using HCHS/SOL references panel. see example below to run PRS:
+
+```{bash eval=FALSE, echo=TRUE}
+for transcript in transcripts ; do \
+
+ bsub -J $transcript\_beta -q big -n 4 -o ./PRS/Data/PBMC/$transcript/log/$transcript\_PRS.log \
+  
+      Rscript .Code/07_Construct_PRS.R \
+              ./PRS/$transcript\_MESA_pred_auto_beta.txt 
+              ./Genotype/HCHS_SOL_F5_imputed.rds \
+              4 \
+               ./PRS/$transcript\_HCHS_SOL_PRS_auto.txt \
+    
+;done
+```
+
+
+## Association test transcript PRS with SDB phenothpe in HCHS SOL
 
