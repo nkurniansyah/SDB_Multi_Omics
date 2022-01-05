@@ -58,8 +58,7 @@ covMatList<- args[6]
 assoc<-run_assoc_mixmodel(pheno=pheno_annot,
                           outcome=outcome, 
                           covars_prs=cov_prs,
-                          covmat=covMatList,
-                          group.var="race")
+                          covmat=covMatList)
 
 output_file<-args[7]
 
