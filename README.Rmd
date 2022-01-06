@@ -238,3 +238,24 @@ for transcript in transcripts ; do \
 
 ## Association test transcript PRS with Metabolomics HCHS/SOL
 
+We performed assoication test for each PRS trancript with metabolomics data in HCHS/SOL. see example below to excutre the code.
+
+
+```{bash eval=FALSE, echo=TRUE}
+
+
+for transcript in transcripts ; do \
+
+ bsub -J $transcript\_Assoc_avgSatO2 -q big -n 2 -o ./PRS_Asoc/PBMC/log/$transcript\_PRS_assoc.log \
+  
+      Rscript .Code/08_PRS_assoc_test.R \
+              ./Data/HCHS_SOL_sleep_pheno.txt \
+              ./PRS/$transcript\_HCHS_SOL_PRS_auto.txt \
+              ./PRS/$transcript\_MESA_pred_auto_beta.txt \
+              'Age,Sex,Center,log_weight_norm,Background,PC1,PC2,PC3,PC4,PC5' \
+              AvgSatO2 \
+              ./Data/HCHS_SOL_CovMatlist.RData \
+              ./PRS_Asoc/PBMC/$transcript\_assoc_with_AvgSatO2.RData
+             
+;done
+```
