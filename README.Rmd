@@ -14,251 +14,111 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Introduction
 
 
-This repository provides information regarding transcript wide-association test and the construction of a transcript polygenic risk score (tPRS) for sleep disorder breathing (SDB) that we developed in manuscript "An integrated multi-omics analysis of sleep-disordered breathing traits across multiple blood cell types" (link to be added).
+This repository provides information regarding transcriptome wide-association test and the construction of a transcript polygenic risk score (tPRS) for sleep disorder breathing (SDB) that we developed in manuscript "An integrated multi-omics analysis of sleep-disordered breathing traits across multiple blood cell types" (link to be added).
 
 First, it provides instructions for constructing the tPRS based on transcript GWAS. We provide the relevant for each transcript summary statistics (see folder “Summary_Statistics_for_tPRS_construction”), as well as code for using them to construct the tPRS.
 
 Second, this repository also provides code the we used for the analyses in the manuscript (see folder “Code”).
 
 
-## Transcript wide-association test
+## Transcriptome wide-association test
 
 We performed Transcript wide association analysis of SDB phenotype (AvgO2, MinO2, AHI, and multiple SDB traits) in multiple blood tissue in MESA (Multi-Ethnic Study of Atherosclerosis) using [Olivia](https://github.com/nkurniansyah/Olivia "Olivia") R package that we developed our previous works in manuscript [Benchmarking association analyses of continuous exposures with RNA-seq in observational studies](https://academic.oup.com/bib/article-abstract/22/6/bbab194/6278609).
 
-we used 01_Transcript_association_analysis.R (single trait/exposure) and 02_Transcript_association_analysis_multi_exposure.R (mutiple exposure) to run the RNASeq analyis.
-
-This scripts takes 5 arguments:\
-1. Phenotype files \
-2. Rnaseq count matrix (*.RData) \
-3. Trait /exposure \
-4. Covariates to adjust\
-5. Outpu files \
-
-see example below to excute the code:
+Briefly, we performed median normalization for gene-level expected counts, and then filtered lowly expressed gene transcripts defined by removing transcripts with proportion of zero higher than 0.5, median value lower than 1, maximum expression range value lower than 5, and maximum expression value lower than 10. Transcript counts were log transformed after counts of zero were replaced with half the minimum of the observed transcript count in the sample The analyses were adjusted for age, sex, study center, race/ethnic group, and batch variables: plates, shipment batch, and study site. Because BMI is a strong risk factor for SDB and is assumed to be part of the causal chain, we conducted additional analyses adjusting for BMI (BMIadj). We computed empirical p-values to account for the highly skewed distribution of SDB phenotypes which implemented in Olivia R package, which may lead to false negative associations if ignored. Finally, we accounted for multiple testing by applying False-Discovery Rate (FDR) correction to each of the association analyses using the Benjamini-Hochberg (BH) procedure.  We carried forward transcript associations with FDR p-value<0.1 
 
 
-```{bash eval=FALSE, echo=TRUE}
 
-# Single trait
-for trait in AvgO2 MinO2 AHI; do \ 
-
-bsub -J $trait -q medium -n 2 -o ./output_rna_seq/log/$trait.log \
-
-Rscript .Code/01_Transcript_association_analysis.R \
-        ./Data/SDB_phenotype.csv \
-        ./Data/MESA_RNASeq.RData \
-        $trait \
-        'age,sex,study_site,race,shipment,plate,BroadUW'\
-        ./output_rna_seq/$trait_unadjBMI.csv; \
-done
-
-# Multi trait
-
-bsub -J Multi_SDB -q medium -n 2 -o ./output_rna_seq/log/Multi_SDB.log \
-
-Rscript .Code/02_Transcript_association_analysis_multi_exposure.R \
-        ./Data/SDB_phenotype.csv \
-        ./Data/MESA_RNASeq.RData \
-        'AvgO2,MinO2,AHI' \
-        'age,sex,study_site,race,shipment,plate,BroadUW'\
-        ./output_rna_seq/Multi_sdb_unadjBMI.csv
-        
-
-```
-
-There are 104 transcripts for un-adjusted BMI and 28 transcripts with FDR p-value < 0.1  across multiple blood tissues and traits for un. We used all these transcripts for additional analyses. 
-
-## Genome-wide association study (GWAS)
+## Transcript genome-wide association study (GWAS)
 
 
-The next step is to perform a Genome-wide Association Study for each transcript using the MESA reference panel. We followed the guideline to perform GWAS using [TopmedPipeline](https://github.com/UW-GAC/analysis_pipeline "TopmedPipeline").
+The next step is to perform a Genome-wide Association Study for each transcript with FDR p-value < 0.1 (96 transcript unadjusted BMI and 24 transcriptadjusted BMI analysis) using the MESA reference panel. We followed the guideline to perform GWAS using [TopmedPipeline](https://github.com/UW-GAC/analysis_pipeline "TopmedPipeline").
 
-We first generate NullModel then performe assiaction test. (03_Transcript_NullModel.R and 04_Transcript_GWAS.R)
 
-see the example below how to execute the code:
+## Constructing tPRS
+
+We used [PRSice 2.3.1.e](https://www.prsice.info "PRSice 2.3.1.e") to construct tPRS for each transcript GWAS. This command below  is to construct tPRS using the transcript GWAS that we provide (./Summary_Statistics_for_tPRS_construction). No clumping is needed and no selection of SNPs. The summary statistics are already based on the specific set of SNPs selected after validation step in idependent data set(see manuscript for the detail).Note that genetic data files need to be specified in the –target argument.
 
 
 ```{bash eval=FALSE, echo=TRUE}
 
-#STEP 1. NullModel
 
+Rscript ./PRSice.R \
+ --dir ./PRS_Output \
+ --prsice ./PRSice_linux/PRSice_linux \
+ --base ./Summary_Statistics_for_tPRS_construction/. \
+ --target ./Genotype \
+ --thread 2 \
+ --chr Chromosome 
+ --bp Position 
+ --A1 Allele1 
+ --A2 Allele2 
+ --pvalue PValue \
+ --bar-levels Threshold \
+ --stat BETA 
+ --all-score T \
+ --out ./out_prs \
+ --no-clump T
+ --print-snp T \
+ --ignore-fid T 
+ --no-regress T 
+ --fastscore T 
+ --model add 
+ --no-full T 
+ --chr-id c:l:a:b
 
-for transcript in FAM20A .... AJUBA ; do \ 
-
-bsub -J $trait -q medium -n 2 -o ./GWAS/$trait/log/$transcript.log \
-
-Rscript .Code/03_Transcript_NullModel.R \
-        ./Data/SDB_phenotype_with_trancsripts_log_transform.csv \
-        'age,sex,study_site,race,shipment,plate,BroadUW,PC1..PC10'\
-        $trancript \
-        ./Data/TOPMed_kinship_matrix.RData \
-        ./GWAS/$Trait/Data/$transcript\_NUllModel.RData; \
-done
-        
-
-
-#STEP 2. GWAS
-
-for transcript FAM20A .... AJUBA ; do \ 
-
-  for chr in {1..22}{
-  
-      bsub -J $transcript\_$chr -q medium -n 2 -o ./GWAS/$transcript/log/$transcript\_chr$chr.log \
-  
-            Rscript .Code/04_Transcript_GWAS.R \
-            ./Data/SDB_phenotype_with_trancsripts_log_transform.csv \
-            $chr \
-            ./GWAS/$transcript/Data/$transcript\_NullModel.RData; \
-            ./GWAS/$transcript/$transcript\_chr$chr.RData ; \
-
-        done \
-;done
-
-
-
-        
-
-```
-
-After completing the GWAS, we combine the GWAS for each transcript using QC using a clumping approach were implemented in
-[PLINK](https://www.cog-genomics.org/plink/2.0/ "PLINK"). We used clumping parameters R2=0.95, Distance 500kb, and P=1. We used HCHS/SOL reference panel to perform clumping because we want to prioritize the existing SNP in HCHS/SOL to generate PRS. See the example below to perform clumping.
-
-
-```{bash eval=FALSE, echo=TRUE }
-
-for transcript in transcripts ; do \
-
-plink \
-    --bfile HCHS_SOL_geno \
-    --clump-p1 1 \
-    --clump-r2 0.95 \
-    --clump-kb 500 \
-    --clump ./GWAS/$transcript/$transcript\_combine.txt \
-    --clump-snp-field SNP \
-    --clump-field P \
-    --out ./GWAS/$transcript/$transcript\_clean_R_0.95_500_kb.txt \
-    
-;done
 
 ```
 
 
+## Example code for association analsis
 
-## Constructing PRS
+We performed association analysis for each tPRS using mixed models implemented in the GENESIS R package. Below is an example code. It uses function that we provide in the folder "Code".
 
-We use each of summary statistics from each of the Tranccript GWAS after QC to develop PRS weights for the corresponding transcripts. We used the LDPRed2-auto model implemented in [bigsnpr](https://privefl.github.io/bigsnpr/articles/LDpred2.html#computing-ldpred2-scores-genome-wide-1 "bigsnpr") R package. Below are the step to construct PRS:
- 
-### Step 1: Correlation Matrix
+```{r eval=FALSE, echo=TRUE}
 
-First, we computed correlation matrix between variants. We used MESA reference panel and same set of people to generate correlation matrix. We first merge all the summary statistics for each tissues(PBMC, Monocyte and T-cell) then create correlation matrix. See example below to excute the code:
+library(GENESIS)
+library(GWASTools)
+library(data.table)
 
-```{bash eval=FALSE, echo=TRUE}
+source("./Code/*")
 
-for tiss PBMC Mono Tcell  ; do \ 
 
-  for chr in {1..22}{
-  
-      bsub -J $transcript\_$chr -q big -n 4 -o ./PRS/Data/$tissue/log/$tissue\_corr_chr$chr.log \
-  
-            Rscript .Code/05_Correlation_matrix.R \
-            $chr \
-            ./Genotype/$tissue\_MESA.bed \
-            ./Data/sample_to_include_$tissue.txt \
-            ./Data/summary_stat_$tissue.txt \
-            ./PRS/Data/$tissue/
-            ./PRS/Data/$tissue/corr_chr$chr.rds; \
-        done \
-;done
-  
+#phenotype
 
-```
+pheno<- fread(phenotype_file, data.table=F)
 
-### Step 2: LDpred2-auto: automatic model
 
-After completed the correlation matrix, we compute weight based on set of people that we used to generate GWAS. See example below to excute the code:
+# merge tPRS with phenotype
 
-```{bash eval=FALSE, echo=TRUE}
-for transcript in transcripts ; do \
+pheno_df<-left_join(pheno,tPRS_transcript1, by="sample.id" )
 
- bsub -J $transcript\_beta -q big -n 4 -o ./PRS/Data/PBMC/$transcript/log/$transcript\_beta.log \
-  
-      Rscript .Code/06_Compute_beta_auto.R \
-              ./GWAS/$transcript/$transcript\_clean_R_0.95_500_kb.txt\
-              ./Genotype/$tissue\_MESA.rds \
-              ./Data/sample_to_include_PBMC.txt \
-              ./PRS/Data/$tissue \
-              ./PRS/$transcript \
-              4 \
-               ./PRS/$transcript\_MESA_pred_auto_beta.txt \
-    
-;done
+
+covarites_prs<- c("age","sex","site","race",paste0("PC_",1:5),"tPRS")
+
+#example outcome
+outcome<-"AvgO2"
+
+## Kinship matrix
+
+covMatlist<-getobj(covMatlist)
+
+
+assoc_df<- run_assoc_mixmodel(pheno=pheno,
+                              outcome=outcome,
+                              covars_prs=covarites_prs, 
+                              covmat=covMatlist,
+                              group.var=NULL)
+
+
 ```
 
 
 
-### Step 3: Generate PRS 
-
-Finally, We used new weighted from MESA and  constructed PRS using HCHS/SOL references panel. see example below to run PRS:
-
-```{bash eval=FALSE, echo=TRUE}
-for transcript in transcripts ; do \
-
- bsub -J $transcript\_beta -q big -n 4 -o ./PRS/Data/PBMC/$transcript/log/$transcript\_PRS.log \
-  
-      Rscript .Code/07_Construct_PRS.R \
-              ./PRS/$transcript\_MESA_pred_auto_beta.txt \
-              ./Genotype/HCHS_SOL_F5_imputed.rds \
-              4 \
-               ./PRS/$transcript\_HCHS_SOL_PRS_auto.txt \
-    
-;done
-```
 
 
-## Association test transcript PRS with SDB phenothpe in HCHS/SOL
+## Example code for metebolome wide-association test
 
-We performed association analysis using mixed models (two stage procedure) implemented in the [GENESIS](https://github.com/UW-GAC/GENESIS "GENESIS") R package. Below is an example how to run the association test.
-
-```{bash eval=FALSE, echo=TRUE}
+We performed  metebolome wide-association test for each tPRS with metabolomics data. see example below:
 
 
-for transcript in transcripts ; do \
-
- bsub -J $transcript\_Assoc_avgSatO2 -q big -n 2 -o ./PRS_Asoc/PBMC/log/$transcript\_PRS_assoc.log \
-  
-      Rscript .Code/08_PRS_assoc_test.R \
-              ./Data/HCHS_SOL_sleep_pheno.txt \
-              ./PRS/$transcript\_HCHS_SOL_PRS_auto.txt \
-              ./PRS/$transcript\_MESA_pred_auto_beta.txt \
-              'Age,Sex,Center,log_weight_norm,Background,PC1,PC2,PC3,PC4,PC5' \
-              AvgSatO2 \
-              ./Data/HCHS_SOL_CovMatlist.RData \
-              ./PRS_Asoc/PBMC/$transcript\_assoc_with_AvgSatO2.RData
-             
-;done
-```
-
-
-## Association test transcript PRS with Metabolomics HCHS/SOL
-
-We performed assoication test for each PRS trancript with metabolomics data in HCHS/SOL. see example below to excutre the code.
-
-
-```{bash eval=FALSE, echo=TRUE}
-
-
-for transcript in transcripts ; do \
-
- bsub -J $transcript\_Assoc_avgSatO2 -q big -n 2 -o ./PRS_Asoc/PBMC/log/$transcript\_PRS_assoc.log \
-  
-      Rscript .Code/08_PRS_assoc_test.R \
-              ./Data/HCHS_SOL_sleep_pheno.txt \
-              ./PRS/$transcript\_HCHS_SOL_PRS_auto.txt \
-              ./PRS/$transcript\_MESA_pred_auto_beta.txt \
-              'Age,Sex,Center,log_weight_norm,Background,PC1,PC2,PC3,PC4,PC5' \
-              AvgSatO2 \
-              ./Data/HCHS_SOL_CovMatlist.RData \
-              ./PRS_Asoc/PBMC/$transcript\_assoc_with_AvgSatO2.RData
-             
-;done
-```
