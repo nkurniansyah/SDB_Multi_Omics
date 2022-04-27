@@ -13,14 +13,17 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Introduction
 
-This repository provides information and instruction on how to perform the analysis in the manuscripts Multi-omics analysis of sleep-disorder sleeping traits across multiple blood tissues.
 
-Second, this repository also provides the codes we used for the analyses (see folder "Code"). 
+This repository provides information regarding transcript wide-association test and the construction of a transcript polygenic risk score (tPRS) for sleep disorder breathing (SDB) that we developed in manuscript "An integrated multi-omics analysis of sleep-disordered breathing traits across multiple blood cell types" (link to be added).
+
+First, it provides instructions for constructing the tPRS based on transcript GWAS. We provide the relevant for each transcript summary statistics (see folder “Summary_Statistics_for_tPRS_construction”), as well as code for using them to construct the tPRS.
+
+Second, this repository also provides code the we used for the analyses in the manuscript (see folder “Code”).
 
 
-## RNASeq Analyis
+## Transcript wide-association test
 
-We performed Transcript wide association analysis of SDB phenotype (AvgO2, MinO2, AHI, and multiple SDB traits) in multiple blood tissue in MESA (Multi-Ethnic Study of Atherosclerosis) using [Olivia](https://github.com/nkurniansyah/Olivia "Olivia") R package.
+We performed Transcript wide association analysis of SDB phenotype (AvgO2, MinO2, AHI, and multiple SDB traits) in multiple blood tissue in MESA (Multi-Ethnic Study of Atherosclerosis) using [Olivia](https://github.com/nkurniansyah/Olivia "Olivia") R package that we developed our previous works in manuscript [Benchmarking association analyses of continuous exposures with RNA-seq in observational studies](https://academic.oup.com/bib/article-abstract/22/6/bbab194/6278609).
 
 we used 01_Transcript_association_analysis.R (single trait/exposure) and 02_Transcript_association_analysis_multi_exposure.R (mutiple exposure) to run the RNASeq analyis.
 
