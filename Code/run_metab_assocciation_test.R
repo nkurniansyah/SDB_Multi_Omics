@@ -43,7 +43,7 @@ run_metab_assoc<-function(phenotype, sample_weight, psu_id, strata, covars, expo
   
   for(metab in metab_include) {
     
-    model<- svyglm(as.formula(paste0(metab,"~",exposure,"+",paste(cov,collapse= "+"))),design=survey_design)
+    model<- svyglm(as.formula(paste0(metab,"~",exposure,"+",paste(covars,collapse= "+"))),design=survey_design)
     
     summary<-summary(model)$coef
     
