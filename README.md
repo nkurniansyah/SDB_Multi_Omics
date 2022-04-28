@@ -87,6 +87,7 @@ need to be specified in the –target argument.
      --model add 
      --no-full T 
      --chr-id c:l:a:b
+     --score sum
 
 ## Example code for association analsis
 
