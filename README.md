@@ -43,7 +43,6 @@ each of the association analyses using the Benjamini-Hochberg (BH)
 procedure. We carried forward transcript associations with FDR
 p-value&lt;0.1
 
-
 ## Transcript genome-wide association study (GWAS)
 
 The next step is to perform a Genome-wide Association Study for each
@@ -88,7 +87,6 @@ need to be specified in the –target argument.
      --model add 
      --no-full T 
      --chr-id c:l:a:b
-     --score sum
 
 ## Example code for association analsis
 
@@ -165,9 +163,6 @@ metabolomics data. see example below:
 
 
     covarites<- c("age","sex","site","race",paste0("PC_",1:5))
-
-    #example outcome
-    outcome<-"tPRS"
 
 
     metab<- getobj(metab_file)

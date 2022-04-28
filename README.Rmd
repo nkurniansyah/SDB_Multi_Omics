@@ -157,9 +157,6 @@ pheno_df<-left_join(pheno,tPRS_transcript1, by="sample.id" )
 
 covarites<- c("age","sex","site","race",paste0("PC_",1:5))
 
-#example outcome
-outcome<-"tPRS"
-
 
 metab<- getobj(metab_file)
 
