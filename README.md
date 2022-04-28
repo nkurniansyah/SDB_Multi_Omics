@@ -108,6 +108,11 @@ function that we provide in the folder “Code”.
 
     # merge tPRS with phenotype
 
+    tPRS_transcript1<- fread(tPRS_transcript1_file, data.table=F)
+
+    tPRS_transcript1[,"tPRS"]<- sapply(tPRS_transcript1[,"tPRS"], function (x) (x-mean(x))/sd(x))
+
+
     pheno_df<-left_join(pheno,tPRS_transcript1, by="sample.id" )
 
 
@@ -125,9 +130,96 @@ function that we provide in the folder “Code”.
                                   outcome=outcome,
                                   covars_prs=covarites_prs, 
                                   covmat=covMatlist,
-                                  group.var=NULL)
+                                  group.var=NULL,
+                                  inverse_normal=TRUE)
 
 ## Example code for metebolome wide-association test
 
 We performed metebolome wide-association test for each tPRS with
 metabolomics data. see example below:
+
+    library(data.table)
+    library(survey)
+    library(dplyr)
+    library(GWASTools)
+    library(tidyverse)
+
+    source("./Code/*")
+
+
+    #phenotype
+
+    pheno<- fread(phenotype_file, data.table=F)
+
+
+    # merge tPRS with phenotype
+
+    tPRS_transcript1<- fread(tPRS_transcript1_file, data.table=F)
+
+    tPRS_transcript1[,"tPRS"]<- sapply(tPRS_transcript1[,"tPRS"], function (x) (x-mean(x))/sd(x))
+
+
+    pheno_df<-left_join(pheno,tPRS_transcript1, by="sample.id" )
+
+
+    covarites<- c("age","sex","site","race",paste0("PC_",1:5))
+
+    #example outcome
+    outcome<-"tPRS"
+
+
+    metab<- getobj(metab_file)
+
+    IDs_both <- intersect(pheno_df$sample.id, rownames(metab))
+
+    rnaseq_matrix <- rnaseq_count_matrix[IDs_both, ] 
+
+    metab <- pheno_df[match(IDs_both,(pheno_df$sample.id)),]
+
+    # Drop samples with more than ...% missing (25%)
+    drop_sample_ind<-which(rowSums(is.na(metab)) < (ncol(metab)-2)* 0.25)
+    metab<-metab[drop_sample_ind,]
+
+
+    # Drop metabolites with more than ...% missing (75 %)
+    drop_metab_ind <- which(colSums(is.na(metab)) < nrow(metab)*0.75)
+    metab<-metab[,drop_metab_ind]
+
+    # Imputed missing Metab with min value
+    metab_imp<-data.frame(sapply(metab,function(x) ifelse(is.na(x),min(x, na.rm = TRUE),x)))
+
+    ### rank normalize metab
+    metab_imp<-sapply(metab_imp, as.numeric)
+    metab_imp<-sapply(metab_imp, rank_normalization)
+
+    metab_imp<-data.frame(metab_imp)%>% rownames_to_column(var="sample.id")
+
+
+    complete_pheno<-left_join(pheno_df,metab_imp, by="sample.id")
+
+    list_metab<-colnames(metab_imp)[2:ncol(metab_imp)]
+
+
+
+    metab_assoc<-run_metab_assoc(phenotype = complete_pheno,
+                                 sample_weight = "WEIGHT_FINAL_NORM_OVERALL",
+                                 psu_id = "PSU_ID",
+                                 strata = "STRAT",
+                                 covars = covarites,
+                                 exposure = "tPRS",
+                                 metab_include =list_metab )
+
+
+
+    metab_assoc<-data.frame(metab_assoc)
+    row.names(metab_assoc)<-NULL
+    # remove unknow metabolite
+    identify_metab<-metab_assoc%>% dplyr::filter(!str_detect(Metabolite,"^X"))
+
+    ## Add FDR
+
+    assoc_clean_df<- identify_metab %>% mutate(FDR_BH=p.adjust(P.value,method="BH"))
+
+
+    metab_output<-args[5]
+    write.csv(assoc_clean_df, file=metab_output, row.names = F)
