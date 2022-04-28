@@ -43,6 +43,7 @@ each of the association analyses using the Benjamini-Hochberg (BH)
 procedure. We carried forward transcript associations with FDR
 p-value&lt;0.1
 
+
 ## Transcript genome-wide association study (GWAS)
 
 The next step is to perform a Genome-wide Association Study for each
