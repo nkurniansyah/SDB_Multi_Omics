@@ -53,15 +53,15 @@ followed the guideline to perform GWAS using
 
 ## Constructing tPRS
 
-After performing GWAS, we defined SNPs selection using cis-QTLs limited
-to the transcript coding region, and then we used [PRSice
+We provide summary statistics for related transcripts in the analysis.
+No clumping is needed and no selection of SNPs. The summary statistics
+are already based on the specific set of SNPs selected after clumping,
+setting a p-value threshold and validated in the independent data
+set(see manuscript for details). Note that genetic data files must be
+specified in the –target argument.We used [PRSice
 2.3.1.e](https://www.prsice.info "PRSice 2.3.1.e") to construct tPRS for
-each transcript GWAS. This command below is to construct tPRS using the
-transcript GWAS we provide
-(./Summary\_Statistics\_for\_tPRS\_construction). The summary statistics
-are based on the specific set of SNPs selected after the validation step
-in the independent data set(see manuscript for details). Note that
-genetic data files must be specified in the –target argument.
+each transcript GWAS that we provided
+(./Summary\_Statistics\_for\_tPRS\_construction).
 
 
 
